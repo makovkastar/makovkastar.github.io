@@ -3,7 +3,7 @@ layout: post
 title: "Android AutoCompleteTextView with suggestions from a web service"
 date: 2014-04-12 09:52:04 +0300
 comments: true
-categories: 
+categories: android, AutoCompleteTextView
 ---
 
 ## Android AutoCompleteTextView with suggestions from a web service ##
@@ -26,16 +26,17 @@ An adapter for the `AutoCompleteTextView` is a core component where suggestions 
 The `performFiltering` method is invoked in a worker thread so no need to create and start a new thread manually. It's done already by the `Filter` itself. The `publishResults` method is invoked in the UI thread to publish the filtering results in the user interface.
 
 
-##### ``BookAutoCompleteAdapter.java``:
+##### BookAutoCompleteAdapter.java:
 
 ```java
-public class BookAutoCompleteAdapter extends ArrayAdapter<Book> implements Filterable {
+public class BookAutoCompleteAdapter extends BaseAdapter implements Filterable {
 
     private static final int MAX_RESULTS = 10;
+    private Context mContext;
     private List<Book> resultList;
 
     public BookAutoCompleteAdapter(Context context) {
-        super(context, R.layout.simple_dropdown_item_2line, android. R.id.text1);
+        mContext = context;
     }
 
     @Override
@@ -49,14 +50,19 @@ public class BookAutoCompleteAdapter extends ArrayAdapter<Book> implements Filte
     }
 
     @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) getContext()
+            LayoutInflater inflater = (LayoutInflater) mContext
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.simple_dropdown_item_2line, parent, false);
         }
-        ((TextView) convertView.findViewById(android.R.id.text1)).setText(getItem(position).getTitle());
-        ((TextView) convertView.findViewById(android.R.id.text2)).setText(getItem(position).getAuthor());
+        ((TextView) convertView.findViewById(R.id.text1)).setText(getItem(position).getTitle());
+        ((TextView) convertView.findViewById(R.id.text2)).setText(getItem(position).getAuthor());
         return convertView;
     }
 
@@ -67,7 +73,7 @@ public class BookAutoCompleteAdapter extends ArrayAdapter<Book> implements Filte
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
-                    resultList = findBooks(getContext(), constraint.toString());
+                    resultList = findBooks(mContext, constraint.toString());
 
                     // Assign the data to the FilterResults
                     filterResults.values = resultList;
@@ -100,7 +106,7 @@ public class BookAutoCompleteAdapter extends ArrayAdapter<Book> implements Filte
 
 After suggestions are fetched, a list of results is displayed bellow the view. Each list row consists of two lines: a book name and an author.
 
-#### ``simple_dropdown_item_2line.xml``
+#### simple\_dropdown\_item_2line.xml
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -112,33 +118,35 @@ After suggestions are fetched, a list of results is displayed bellow the view. E
                  android:paddingStart="?android:attr/listPreferredItemPaddingStart"
                  android:paddingEnd="?android:attr/listPreferredItemPaddingEnd">
 
-    <TextView android:id="@android:id/text1"
+    <TextView android:id="@+id/text1"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:layout_marginTop="8dp"
+              android:layout_marginTop="@dimen/margin_default"
               android:textAppearance="?android:attr/textAppearanceLargePopupMenu"/>
 
-    <TextView android:id="@android:id/text2"
+    <TextView android:id="@+id/text2"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:layout_below="@android:id/text1"
-              android:layout_alignStart="@android:id/text1"
-              android:layout_marginBottom="8dp"
+              android:layout_below="@id/text1"
+              android:layout_alignStart="@id/text1"
+              android:layout_marginBottom="@dimen/margin_default"
               android:textAppearance="?android:attr/textAppearanceSmall"/>
 
 </TwoLineListItem>
+
 ```
 
 ### Step 3 - Add a delay before sending a data request to a web service
 
-With a standard `AutoCompleteTextView` a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go - add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character - the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn't change the text during the delay time - the request is sent. To implement this behaviour we create a custom implementation of `AutoCompleteTextView` and override the method `performFiltering(CharSequence text, int keyCode)`. The constant `AUTOCOMPLETE_DELAY` defines time in milliseconds after the request will be sent to a server if user didn't change the search string.
+With a standard `AutoCompleteTextView` a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go - add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character - the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn't change the text during the delay time - the request is sent. To implement this behaviour we create a custom implementation of `AutoCompleteTextView` and override the method `performFiltering(CharSequence text, int keyCode)`. The variable `mAutoCompleteDelay` defines time in milliseconds after the request will be sent to a server if user didn't change the search string.
 
 ```java
 public class DelayAutoCompleteTextView extends AutoCompleteTextView {
 
     private static final int MESSAGE_TEXT_CHANGED = 100;
-    private static final int AUTOCOMPLETE_DELAY = 750;
+    private static final int DEFAULT_AUTOCOMPLETE_DELAY = 750;
 
+    private int mAutoCompleteDelay = DEFAULT_AUTOCOMPLETE_DELAY;
     private ProgressBar mLoadingIndicator;
 
     private final Handler mHandler = new Handler() {
@@ -152,20 +160,28 @@ public class DelayAutoCompleteTextView extends AutoCompleteTextView {
         super(context, attrs);
     }
 
-    public void setLoadingIndicator(ProgressBar view) {
-        mLoadingIndicator = view;
+    public void setLoadingIndicator(ProgressBar progressBar) {
+        mLoadingIndicator = progressBar;
+    }
+
+    public void setAutoCompleteDelay(int autoCompleteDelay) {
+        mAutoCompleteDelay = autoCompleteDelay;
     }
 
     @Override
     protected void performFiltering(CharSequence text, int keyCode) {
-        mLoadingIndicator.setVisibility(View.VISIBLE);
+        if (mLoadingIndicator != null) {
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+        }
         mHandler.removeMessages(MESSAGE_TEXT_CHANGED);
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(MESSAGE_TEXT_CHANGED, text), AUTOCOMPLETE_DELAY);
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(MESSAGE_TEXT_CHANGED, text), mAutoCompleteDelay);
     }
 
     @Override
     public void onFilterComplete(int count) {
-        mLoadingIndicator.setVisibility(View.GONE);
+        if (mLoadingIndicator != null) {
+            mLoadingIndicator.setVisibility(View.GONE);
+        }
         super.onFilterComplete(count);
     }
 }
@@ -208,13 +224,7 @@ Now place this layout inside where you need your
 
 ### Step 5 - Assemble components together
 
-Now when we have all components ready we can assemble them together. 
-
-` bookTitle.setThreshold(THRESHOLD)` specifies the minimum number of characters the user has to type in the edit box before the drop down list is shown.
-
-`bookTitle.setLoadingIndicator((android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator))` binds the `ProgressBar` view to the `DelayAutoCompleteTextView`.
-
-It's important to set `OnItemClickListener` for the `DelayAutoCompleteTextView` and set a correct value to the target input field. Without doing that a string obtained via call to `Object.toString()` will be pasted to the field. 
+Now when we have all components ready we can assemble them together: 
 
 ```java
 
@@ -230,3 +240,9 @@ It's important to set `OnItemClickListener` for the `DelayAutoCompleteTextView` 
                 bookTitle.setText(book.getTitle());
             }
         });
+
+` bookTitle.setThreshold(THRESHOLD)` specifies the minimum number of characters the user has to type in the edit box before the drop down list is shown.
+
+`bookTitle.setLoadingIndicator((android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator))` binds the `ProgressBar` view to the `DelayAutoCompleteTextView`.
+
+It's important to set `OnItemClickListener` for the `DelayAutoCompleteTextView` and set a correct value to the target input field. Without doing that a string obtained via call to `Object.toString()` will be pasted to the field. 
