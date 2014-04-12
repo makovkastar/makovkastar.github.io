@@ -140,6 +140,8 @@ After suggestions are fetched, a list of results is displayed bellow the view. E
 
 With a standard `AutoCompleteTextView` a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go - add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character - the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn't change the text during the delay time - the request is sent. To implement this behaviour we create a custom implementation of `AutoCompleteTextView` and override the method `performFiltering(CharSequence text, int keyCode)`. The variable `mAutoCompleteDelay` defines time in milliseconds after the request will be sent to a server if user didn't change the search string.
 
+#### DelayAutoCompleteTextView.java
+
 ```java
 public class DelayAutoCompleteTextView extends AutoCompleteTextView {
 
@@ -193,6 +195,8 @@ It's very important to provide a feedback to the user when he is typing the text
 
 We put the `ProgressBar` widget and `DelayAutoCompleteTextView` to the `FrameLayout` and align the progress to the right side of the input field. We set `android:visibility="gone"` as the initial state of the progress:
 
+
+
 ```xml
 <FrameLayout android:layout_width="match_parent"
                  android:layout_height="wrap_content"
@@ -227,8 +231,7 @@ Now place this layout inside where you need your
 Now when we have all components ready we can assemble them together: 
 
 ```java
-
-    DelayAutoCompleteTextView bookTitle = (DelayAutoCompleteTextView) findViewById(R.id.et_book_title);
+DelayAutoCompleteTextView bookTitle = (DelayAutoCompleteTextView) findViewById(R.id.et_book_title);
     bookTitle.setThreshold(THRESHOLD);
     bookTitle.setAdapter(new BookAutoCompleteAdapter(this)); // this is Activity instance
     bookTitle.setLoadingIndicator(
