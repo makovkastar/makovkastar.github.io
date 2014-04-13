@@ -6,7 +6,7 @@ comments: true
 categories: android, AutoCompleteTextView
 ---
 
-## Android AutoCompleteTextView with suggestions from a web service ##
+# Android AutoCompleteTextView with suggestions from a web service #
 
 In the last update for my Android project [BookTracker](https://play.google.com/store/apps/details?id=com.melnykov.booktracker) I have implemented an [AutoCompleteTextView](http://developer.android.com/reference/android/widget/AutoCompleteTextView.html) with suggestions for a book title which are fetched from the [Google Books](https://developers.google.com/books/). There were a few requirements for such a view:
 
@@ -19,7 +19,7 @@ The final result looks like this:
 
 {% img /images/bloggif_53483ba352390.gif %}
 
-### Step 1 - Implement an adapter for AutoCompleteTextView
+## Step 1 - Implement an adapter for AutoCompleteTextView
 
 An adapter for the `AutoCompleteTextView` is a core component where suggestions are loaded and stored. The `BookAutoCompleteAdapter` must implement the [Filterable](http://developer.android.com/reference/android/widget/Filterable.html) interface in order for you to capture the user input from the `AutoCompleteTextView` and pass it as a search criteria to the web service. A single method of the `Filterable` interface is `getFilter()` that must return a [Filter](http://developer.android.com/reference/android/widget/Filter.html) instance which is actually performs the data loading and publishing. `Filter` subclasses must implement 2 methods: `performFiltering (CharSequence constraint)` and `publishResults (CharSequence constraint, Filter.FilterResults results)`. 
 
@@ -102,7 +102,7 @@ public class BookAutoCompleteAdapter extends BaseAdapter implements Filterable {
 ```
 
 
-### Step 2 - Create an XML layout for a suggestion list row
+## Step 2 - Create an XML layout for a suggestion list row
 
 After suggestions are fetched, a list of results is displayed bellow the view. Each list row consists of two lines: a book name and an author.
 
@@ -136,7 +136,7 @@ After suggestions are fetched, a list of results is displayed bellow the view. E
 
 ```
 
-### Step 3 - Add a delay before sending a data request to a web service
+## Step 3 - Add a delay before sending a data request to a web service
 
 With a standard `AutoCompleteTextView` a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go - add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character - the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn't change the text during the delay time - the request is sent. To implement this behaviour we create a custom implementation of `AutoCompleteTextView` and override the method `performFiltering(CharSequence text, int keyCode)`. The variable `mAutoCompleteDelay` defines time in milliseconds after the request will be sent to a server if user didn't change the search string.
 
@@ -189,7 +189,7 @@ public class DelayAutoCompleteTextView extends AutoCompleteTextView {
 }
 ```
 
-### Step 4 - Add an animated progress to the view
+## Step 4 - Add an animated progress to the view
 
 It's very important to provide a feedback to the user when he is typing the text. We have to display an animated progress in the same view  to say to the user "Hey, suggestions are loading right now and will be displayed shortly". In that way user will expect something to happen and can wait until response received. Without this feedback the user will even not suspect that a field has suggestions. 
 
@@ -202,31 +202,31 @@ We put the `ProgressBar` widget and `DelayAutoCompleteTextView` to the `FrameLay
                  android:layout_height="wrap_content"
                  android:layout_margin="@dimen/margin_default">
 
-        <com.melnykov.booktracker.ui.DelayAutoCompleteTextView
-                android:id="@+id/et_book_title"
-                android:inputType="textCapSentences"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingRight="@dimen/padding_auto_complete"
-                android:imeOptions="flagNoExtractUi|actionSearch"
-                android:hint="@string/hint_book_title"/>
+    <com.melnykov.booktracker.ui.DelayAutoCompleteTextView
+            android:id="@+id/et_book_title"
+            android:inputType="textCapSentences"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingRight="@dimen/padding_auto_complete"
+            android:imeOptions="flagNoExtractUi|actionSearch"
+            android:hint="@string/hint_book_title"/>
 
-        <ProgressBar
-                android:id="@+id/pb_loading_indicator"
-                style="?android:attr/progressBarStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|right"
-                android:layout_marginRight="@dimen/margin_default"
-                android:visibility="gone"/>
-    </FrameLayout>
+    <ProgressBar
+            android:id="@+id/pb_loading_indicator"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"
+            android:layout_marginRight="@dimen/margin_default"
+            android:visibility="gone"/>
+</FrameLayout>
 ```
 
 The `ProgressBar` is connected to the `DelayAutoCompleteTextView` via `setLoadingIndicator(ProgressBar view)` method of the latter. It's visibility will be set to `View.GONE` when a filtering starts and to `View.GONE` when completed. 
 
 Now place this layout inside where you need your  
 
-### Step 5 - Assemble components together
+## Step 5 - Assemble components together
 
 Now when we have all components ready we can assemble them together: 
 
