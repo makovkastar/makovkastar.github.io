@@ -17,7 +17,7 @@ In the last update for my Android project [BookTracker](https://play.google.com/
 
 The final result looks like this:
 
-{% img left /images/bloggif_53483ba352390.gif %}
+{% img /images/bloggif_53483ba352390.gif %}
 
 ### Step 1 - Implement an adapter for AutoCompleteTextView
 
@@ -243,6 +243,7 @@ DelayAutoCompleteTextView bookTitle = (DelayAutoCompleteTextView) findViewById(R
                 bookTitle.setText(book.getTitle());
             }
         });
+```
 
 ` bookTitle.setThreshold(THRESHOLD)` specifies the minimum number of characters the user has to type in the edit box before the drop down list is shown.
 
