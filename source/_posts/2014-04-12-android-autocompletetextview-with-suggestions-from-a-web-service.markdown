@@ -3,7 +3,7 @@ layout: post
 title: "Android AutoCompleteTextView with suggestions from a web service"
 date: 2014-04-12 09:52:04 +0300
 comments: true
-categories: android, AutoCompleteTextView
+categories: [android, AutoCompleteTextView]
 ---
 
 # Android AutoCompleteTextView with suggestions from a web service #
@@ -13,15 +13,15 @@ In the last update for my Android project [BookTracker](https://play.google.com/
 - Suggestions data fetching must be performed in a separate thread
 - Data fetching should start only when a user pauses typing (to prevent a bunch of requests to a server after every entered character)
 - Suggestions should be shown only if the user enters a string of some minimum length (no reason to start data fetching for string of 2 or 3 characters) 
-- An animated progress bar must be shown on the right side of the view when suggestions fetching is in a progress
+- An animated progress bar must be shown on the right side of the view when suggestions fetching is in progress
 
 The final result looks like this:
 
-{% img /images/bloggif_53483ba352390.gif %}
+{% img /images/autocomplete.gif %}
 
 ## Step 1 - Implement an adapter for AutoCompleteTextView
 
-An adapter for the `AutoCompleteTextView` is a core component where suggestions are loaded and stored. The `BookAutoCompleteAdapter` must implement the [Filterable](http://developer.android.com/reference/android/widget/Filterable.html) interface in order for you to capture the user input from the `AutoCompleteTextView` and pass it as a search criteria to the web service. A single method of the `Filterable` interface is `getFilter()` that must return a [Filter](http://developer.android.com/reference/android/widget/Filter.html) instance which is actually performs the data loading and publishing. `Filter` subclasses must implement 2 methods: `performFiltering (CharSequence constraint)` and `publishResults (CharSequence constraint, Filter.FilterResults results)`. 
+The adapter for the `AutoCompleteTextView` is a core component where suggestions are loaded and stored. The `BookAutoCompleteAdapter` must implement the [Filterable](http://developer.android.com/reference/android/widget/Filterable.html) interface in order for you to capture the user input from the `AutoCompleteTextView` and pass it as a search criteria to the web service. A single method of the `Filterable` interface is `getFilter()` that must return a [Filter](http://developer.android.com/reference/android/widget/Filter.html) instance which is actually performs the data loading and publishing. `Filter` subclasses must implement 2 methods: `performFiltering (CharSequence constraint)` and `publishResults (CharSequence constraint, Filter.FilterResults results)`. 
 
 The `performFiltering` method is invoked in a worker thread so no need to create and start a new thread manually. It's done already by the `Filter` itself. The `publishResults` method is invoked in the UI thread to publish the filtering results in the user interface.
 
