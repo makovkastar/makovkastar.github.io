@@ -191,9 +191,9 @@ public class DelayAutoCompleteTextView extends AutoCompleteTextView {
 
 ## Step 4 - Add an animated progress to the view
 
-It's very important to provide a feedback to the user when he is typing the text. We have to display an animated progress in the same view  to say to the user "Hey, suggestions are loading right now and will be displayed shortly". In that way user will expect something to happen and can wait until response received. Without this feedback the user will even not suspect that a field has suggestions. 
+It's very important to provide a feedback to the user when he is typing the text. We have to display an animated progress in the same view  to say to the user "Hey, suggestions are loading right now and will be displayed shortly". In that way the user will expect something to happen and can wait until response received. Without this feedback the user will even not suspect that a field has suggestions.
 
-We put the `ProgressBar` widget and `DelayAutoCompleteTextView` to the `FrameLayout` and align the progress to the right side of the input field. We set `android:visibility="gone"` as the initial state of the progress:
+We put the `ProgressBar` widget and the `DelayAutoCompleteTextView` to the `FrameLayout` and align the progress to the right side of the input field. We set `android:visibility="gone"` as the initial state of the progress:
 
 
 
@@ -208,8 +208,7 @@ We put the `ProgressBar` widget and `DelayAutoCompleteTextView` to the `FrameLay
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingRight="@dimen/padding_auto_complete"
-            android:imeOptions="flagNoExtractUi|actionSearch"
-            android:hint="@string/hint_book_title"/>
+            android:imeOptions="flagNoExtractUi|actionSearch"/>
 
     <ProgressBar
             android:id="@+id/pb_loading_indicator"
@@ -222,9 +221,9 @@ We put the `ProgressBar` widget and `DelayAutoCompleteTextView` to the `FrameLay
 </FrameLayout>
 ```
 
-The `ProgressBar` is connected to the `DelayAutoCompleteTextView` via `setLoadingIndicator(ProgressBar view)` method of the latter. It's visibility will be set to `View.GONE` when a filtering starts and to `View.GONE` when completed. 
+The `ProgressBar` is connected to the `DelayAutoCompleteTextView` via `setLoadingIndicator(ProgressBar view)` method of the latter. It's visibility is set to `View.GONE` when a filtering starts and to `View.GONE` when complete. 
 
-Now place this layout inside where you need your  
+Now insert this layout where you need.
 
 ## Step 5 - Assemble components together
 
@@ -233,7 +232,7 @@ Now when we have all components ready we can assemble them together:
 ```java
 DelayAutoCompleteTextView bookTitle = (DelayAutoCompleteTextView) findViewById(R.id.et_book_title);
     bookTitle.setThreshold(THRESHOLD);
-    bookTitle.setAdapter(new BookAutoCompleteAdapter(this)); // this is Activity instance
+    bookTitle.setAdapter(new BookAutoCompleteAdapter(this)); // 'this' is Activity instance
     bookTitle.setLoadingIndicator(
                 (android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator));
     bookTitle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -249,4 +248,4 @@ DelayAutoCompleteTextView bookTitle = (DelayAutoCompleteTextView) findViewById(R
 
 `bookTitle.setLoadingIndicator((android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator))` binds the `ProgressBar` view to the `DelayAutoCompleteTextView`.
 
-It's important to set `OnItemClickListener` for the `DelayAutoCompleteTextView` and set a correct value to the target input field. Without doing that a string obtained via call to `Object.toString()` will be pasted to the field. 
+It's important to set `OnItemClickListener` for the `DelayAutoCompleteTextView` and set a correct value to the target input field. Without doing that a string obtained via call to `toString()` of a selected object will be pasted to the field. 
