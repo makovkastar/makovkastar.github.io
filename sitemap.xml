@@ -1,15 +1,33 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
+        <loc>
+            http://makovkastar.github.io/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service/
+        </loc>
+        <lastmod>2014-04-14T19:53:09+03:00</lastmod>
+    </url>
+    <url>
+        <loc>http://makovkastar.github.io/blog/</loc>
+        <lastmod>2014-04-14T19:53:09+03:00</lastmod>
+    </url>
+    <url>
         <loc>http://makovkastar.github.io/blog/archives/</loc>
-        <lastmod>2014-04-10T21:35:01+03:00</lastmod>
+        <lastmod>2014-04-14T19:53:09+03:00</lastmod>
     </url>
     <url>
         <loc>http://makovkastar.github.io/robots.txt</loc>
-        <lastmod>2014-04-10T21:35:01+03:00</lastmod>
+        <lastmod>2014-04-13T21:04:23+03:00</lastmod>
     </url>
     <url>
         <loc>http://makovkastar.github.io/</loc>
-        <lastmod>2014-04-10T21:35:01+03:00</lastmod>
+        <lastmod>2014-04-14T19:53:09+03:00</lastmod>
+    </url>
+    <url>
+        <loc>http://makovkastar.github.io/about/</loc>
+        <lastmod>2014-04-13T21:04:23+03:00</lastmod>
+    </url>
+    <url>
+        <loc>http://makovkastar.github.io/archives/</loc>
+        <lastmod>2014-04-14T19:53:09+03:00</lastmod>
     </url>
 </urlset>

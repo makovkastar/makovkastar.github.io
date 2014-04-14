@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: android | Alex Melnykov]]></title>
+  <link href="http://makovkastar.github.io/blog/categories/android/atom.xml" rel="self"/>
+  <link href="http://makovkastar.github.io/"/>
+  <updated>2014-04-14T19:53:36+03:00</updated>
+  <id>http://makovkastar.github.io/</id>
+  <author>
+    <name><![CDATA[Alex Melnykov]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Android AutoCompleteTextView with suggestions from a web service]]></title>
+    <link href="http://makovkastar.github.io/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service/"/>
+    <updated>2014-04-12T09:52:04+03:00</updated>
+    <id>http://makovkastar.github.io/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service</id>
+    <content type="html"><![CDATA[<h1>Android AutoCompleteTextView with suggestions from a web service</h1>
+
+<p>In the last update for my Android project <a href="https://play.google.com/store/apps/details?id=com.melnykov.booktracker">BookTracker</a> I have implemented an <a href="http://developer.android.com/reference/android/widget/AutoCompleteTextView.html">AutoCompleteTextView</a> with suggestions for a book title which are fetched from the <a href="https://developers.google.com/books/">Google Books</a>. There were a few requirements for such a view:</p>
+
+<ul>
+<li>Suggestions data fetching must be performed in a separate thread</li>
+<li>Data fetching should start only when a user pauses typing (to prevent a bunch of requests to a server after every entered character)</li>
+<li>Suggestions should be shown only if the user enters a string of some minimum length (no reason to start data fetching for string of 2 or 3 characters)</li>
+<li>An animated progress bar must be shown on the right side of the view when suggestions fetching is in progress</li>
+</ul>
+
+
+<p>The final result looks like this:</p>
+
+<p><img src="/images/autocomplete.gif"></p>
+
+<h2>Step 1 &ndash; Implement an adapter for AutoCompleteTextView</h2>
+
+<p>The adapter for the <code>AutoCompleteTextView</code> is a core component where suggestions are loaded and stored. The <code>BookAutoCompleteAdapter</code> must implement the <a href="http://developer.android.com/reference/android/widget/Filterable.html">Filterable</a> interface in order for you to capture the user input from the <code>AutoCompleteTextView</code> and pass it as a search criteria to the web service. A single method of the <code>Filterable</code> interface is <code>getFilter()</code> that must return a <a href="http://developer.android.com/reference/android/widget/Filter.html">Filter</a> instance which is actually performs the data loading and publishing. <code>Filter</code> subclasses must implement 2 methods: <code>performFiltering (CharSequence constraint)</code> and <code>publishResults (CharSequence constraint, Filter.FilterResults results)</code>.</p>
+
+<p>The <code>performFiltering</code> method is invoked in a worker thread so no need to create and start a new thread manually. It&rsquo;s done already by the <code>Filter</code> itself. The <code>publishResults</code> method is invoked in the UI thread to publish the filtering results in the user interface.</p>
+
+<h5>BookAutoCompleteAdapter.java:</h5>
+
+<p>```java
+public class BookAutoCompleteAdapter extends BaseAdapter implements Filterable {</p>
+
+<pre><code>private static final int MAX_RESULTS = 10;
+private Context mContext;
+private List&lt;Book&gt; resultList;
+
+public BookAutoCompleteAdapter(Context context) {
+    mContext = context;
+}
+
+@Override
+public int getCount() {
+    return resultList.size();
+}
+
+@Override
+public Book getItem(int index) {
+    return resultList.get(index);
+}
+
+@Override
+public long getItemId(int position) {
+    return position;
+}
+
+@Override
+public View getView(int position, View convertView, ViewGroup parent) {
+    if (convertView == null) {
+        LayoutInflater inflater = (LayoutInflater) mContext
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        convertView = inflater.inflate(R.layout.simple_dropdown_item_2line, parent, false);
+    }
+    ((TextView) convertView.findViewById(R.id.text1)).setText(getItem(position).getTitle());
+    ((TextView) convertView.findViewById(R.id.text2)).setText(getItem(position).getAuthor());
+    return convertView;
+}
+
+@Override
+public Filter getFilter() {
+    Filter filter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            FilterResults filterResults = new FilterResults();
+            if (constraint != null) {
+                resultList = findBooks(mContext, constraint.toString());
+
+                // Assign the data to the FilterResults
+                filterResults.values = resultList;
+                filterResults.count = resultList.size();
+            }
+            return filterResults;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            if (results != null &amp;&amp; results.count &gt; 0) {
+                notifyDataSetChanged();
+            }
+            else {
+                notifyDataSetInvalidated();
+            }
+        }};
+    return filter;
+}
+
+private List&lt;Book&gt; findBooks(Context context, String bookTitle) {
+    GoogleBooksProtocol protocol = new GoogleBooksProtocol(context, MAX_RESULTS);
+    return protocol.findBooks(bookTitle, null);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Step 2 &ndash; Create an XML layout for a suggestion list row</h2>
+
+<p>After suggestions are fetched, a list of results is displayed bellow the view. Each list row consists of two lines: a book name and an author.</p>
+
+<h4>simple_dropdown_item_2line.xml</h4>
+
+<p>```xml
+&lt;?xml version=&ldquo;1.0&rdquo; encoding=&ldquo;utf-8&rdquo;?>
+&lt;TwoLineListItem xmlns:android=&ldquo;<a href="http://schemas.android.com/apk/res/android">http://schemas.android.com/apk/res/android</a>&rdquo;</p>
+
+<pre><code>             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:minHeight="?android:attr/listPreferredItemHeight"
+             android:mode="twoLine"
+             android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+             android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"&gt;
+
+&lt;TextView android:id="@+id/text1"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/margin_default"
+          android:textAppearance="?android:attr/textAppearanceLargePopupMenu"/&gt;
+
+&lt;TextView android:id="@+id/text2"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_below="@id/text1"
+          android:layout_alignStart="@id/text1"
+          android:layout_marginBottom="@dimen/margin_default"
+          android:textAppearance="?android:attr/textAppearanceSmall"/&gt;
+</code></pre>
+
+<p></TwoLineListItem></p>
+
+<p>```</p>
+
+<h2>Step 3 &ndash; Add a delay before sending a data request to a web service</h2>
+
+<p>With a standard <code>AutoCompleteTextView</code> a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go &ndash; add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character &ndash; the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn&rsquo;t change the text during the delay time &ndash; the request is sent. To implement this behaviour we create a custom implementation of <code>AutoCompleteTextView</code> and override the method <code>performFiltering(CharSequence text, int keyCode)</code>. The variable <code>mAutoCompleteDelay</code> defines time in milliseconds after the request will be sent to a server if user didn&rsquo;t change the search string.</p>
+
+<h4>DelayAutoCompleteTextView.java</h4>
+
+<p>```java
+public class DelayAutoCompleteTextView extends AutoCompleteTextView {</p>
+
+<pre><code>private static final int MESSAGE_TEXT_CHANGED = 100;
+private static final int DEFAULT_AUTOCOMPLETE_DELAY = 750;
+
+private int mAutoCompleteDelay = DEFAULT_AUTOCOMPLETE_DELAY;
+private ProgressBar mLoadingIndicator;
+
+private final Handler mHandler = new Handler() {
+    @Override
+    public void handleMessage(Message msg) {
+        DelayAutoCompleteTextView.super.performFiltering((CharSequence) msg.obj, msg.arg1);
+    }
+};
+
+public DelayAutoCompleteTextView(Context context, AttributeSet attrs) {
+    super(context, attrs);
+}
+
+public void setLoadingIndicator(ProgressBar progressBar) {
+    mLoadingIndicator = progressBar;
+}
+
+public void setAutoCompleteDelay(int autoCompleteDelay) {
+    mAutoCompleteDelay = autoCompleteDelay;
+}
+
+@Override
+protected void performFiltering(CharSequence text, int keyCode) {
+    if (mLoadingIndicator != null) {
+        mLoadingIndicator.setVisibility(View.VISIBLE);
+    }
+    mHandler.removeMessages(MESSAGE_TEXT_CHANGED);
+    mHandler.sendMessageDelayed(mHandler.obtainMessage(MESSAGE_TEXT_CHANGED, text), mAutoCompleteDelay);
+}
+
+@Override
+public void onFilterComplete(int count) {
+    if (mLoadingIndicator != null) {
+        mLoadingIndicator.setVisibility(View.GONE);
+    }
+    super.onFilterComplete(count);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Step 4 &ndash; Add an animated progress to the view</h2>
+
+<p>It&rsquo;s very important to provide a feedback to the user when he is typing the text. We have to display an animated progress in the same view  to say to the user &ldquo;Hey, suggestions are loading right now and will be displayed shortly&rdquo;. In that way the user will expect something to happen and can wait until response received. Without this feedback the user will even not suspect that a field has suggestions.</p>
+
+<p>We put the <code>ProgressBar</code> widget and the <code>DelayAutoCompleteTextView</code> to the <code>FrameLayout</code> and align the progress to the right side of the input field. We set <code>android:visibility="gone"</code> as the initial state of the progress:</p>
+
+<p>```xml
+&lt;FrameLayout android:layout_width=&ldquo;match_parent&rdquo;</p>
+
+<pre><code>             android:layout_height="wrap_content"
+             android:layout_margin="@dimen/margin_default"&gt;
+
+&lt;com.melnykov.booktracker.ui.DelayAutoCompleteTextView
+        android:id="@+id/et_book_title"
+        android:inputType="textCapSentences"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingRight="@dimen/padding_auto_complete"
+        android:imeOptions="flagNoExtractUi|actionSearch"/&gt;
+
+&lt;ProgressBar
+        android:id="@+id/pb_loading_indicator"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|right"
+        android:layout_marginRight="@dimen/margin_default"
+        android:visibility="gone"/&gt;
+</code></pre>
+
+<p></FrameLayout>
+```</p>
+
+<p>The <code>ProgressBar</code> is connected to the <code>DelayAutoCompleteTextView</code> via <code>setLoadingIndicator(ProgressBar view)</code> method of the latter. It&rsquo;s visibility is set to <code>View.GONE</code> when a filtering starts and to <code>View.GONE</code> when complete.</p>
+
+<p>Now insert this layout where you need.</p>
+
+<h2>Step 5 &ndash; Assemble components together</h2>
+
+<p>Now when we have all components ready we can assemble them together:</p>
+
+<p>```java
+DelayAutoCompleteTextView bookTitle = (DelayAutoCompleteTextView) findViewById(R.id.et_book_title);</p>
+
+<pre><code>bookTitle.setThreshold(THRESHOLD);
+bookTitle.setAdapter(new BookAutoCompleteAdapter(this)); // 'this' is Activity instance
+bookTitle.setLoadingIndicator(
+            (android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator));
+bookTitle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView&lt;?&gt; adapterView, View view, int position, long id) {
+            Book book = (Book) adapterView.getItemAtPosition(position);
+            bookTitle.setText(book.getTitle());
+        }
+    });
+</code></pre>
+
+<p>```</p>
+
+<p><code>bookTitle.setThreshold(THRESHOLD)</code> specifies the minimum number of characters the user has to type in the edit box before the drop down list is shown.</p>
+
+<p><code>bookTitle.setLoadingIndicator((android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator))</code> binds the <code>ProgressBar</code> view to the <code>DelayAutoCompleteTextView</code>.</p>
+
+<p>It&rsquo;s important to set <code>OnItemClickListener</code> for the <code>DelayAutoCompleteTextView</code> and set a correct value to the target input field. Without doing that a string obtained via call to <code>toString()</code> of a selected object will be pasted to the field.</p>
+]]></content>
+  </entry>
+  
+</feed>
