@@ -30,7 +30,7 @@ public class BookAutoCompleteAdapter extends BaseAdapter implements Filterable {
 
     private static final int MAX_RESULTS = 10;
     private Context mContext;
-    private List<Book> resultList;
+    private List<Book> resultList = new ArrayList<Book>();
 
     public BookAutoCompleteAdapter(Context context) {
         mContext = context;
@@ -83,17 +83,20 @@ public class BookAutoCompleteAdapter extends BaseAdapter implements Filterable {
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 if (results != null && results.count > 0) {
                     notifyDataSetChanged();
-                }
-                else {
+                } else {
                     notifyDataSetInvalidated();
                 }
             }};
         return filter;
     }
 
+    /**
+     * Returns a search result for the given book title.
+     */
     private List<Book> findBooks(Context context, String bookTitle) {
+        // GoogleBooksProtocol is a wrapper for the Google Books API
         GoogleBooksProtocol protocol = new GoogleBooksProtocol(context, MAX_RESULTS);
-        return protocol.findBooks(bookTitle, null);
+        return protocol.findBooks(bookTitle);
     }
 }
 ```
@@ -135,7 +138,7 @@ After suggestions are fetched, a list of results is displayed bellow the view. E
 
 ## Step 3 - Add a delay before sending a data request to a web service
 
-With a standard `AutoCompleteTextView` a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go - add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character - the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn't change the text during the delay time - the request is sent. To implement this behaviour we create a custom implementation of `AutoCompleteTextView` and override the method `performFiltering(CharSequence text, int keyCode)`. The variable `mAutoCompleteDelay` defines time in milliseconds after the request will be sent to a server if user didn't change the search string.
+With a standard `AutoCompleteTextView` a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go - add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character, the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn't change the text during the delay time, the request is sent. To implement this behaviour we create a custom implementation of `AutoCompleteTextView` and override the method `performFiltering(CharSequence text, int keyCode)`. The variable `mAutoCompleteDelay` defines time in milliseconds after the request will be sent to a server if the user didn't change the search string.
 
 #### DelayAutoCompleteTextView.java
 
@@ -220,11 +223,11 @@ We put the `ProgressBar` widget and the `DelayAutoCompleteTextView` to the `Fram
 
 The `ProgressBar` is connected to the `DelayAutoCompleteTextView` via `setLoadingIndicator(ProgressBar view)` method of the latter. It's visibility is set to `View.GONE` when a filtering starts and to `View.GONE` when complete. 
 
-Now insert this layout where you need.
+Now insert this layout where you need it.
 
 ## Step 5 - Assemble components together
 
-Now when we have all components ready we can assemble them together: 
+Finally when we have all components ready we can assemble them together: 
 
 ```java
 DelayAutoCompleteTextView bookTitle = (DelayAutoCompleteTextView) findViewById(R.id.et_book_title);
