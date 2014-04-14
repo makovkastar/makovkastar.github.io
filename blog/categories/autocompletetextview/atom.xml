@@ -4,7 +4,7 @@
   <title><![CDATA[Category: AutoCompleteTextView | Alex Melnykov]]></title>
   <link href="http://makovkastar.github.io/blog/categories/autocompletetextview/atom.xml" rel="self"/>
   <link href="http://makovkastar.github.io/"/>
-  <updated>2014-04-14T19:53:36+03:00</updated>
+  <updated>2014-04-14T20:11:54+03:00</updated>
   <id>http://makovkastar.github.io/</id>
   <author>
     <name><![CDATA[Alex Melnykov]]></name>
@@ -18,9 +18,7 @@
     <link href="http://makovkastar.github.io/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service/"/>
     <updated>2014-04-12T09:52:04+03:00</updated>
     <id>http://makovkastar.github.io/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service</id>
-    <content type="html"><![CDATA[<h1>Android AutoCompleteTextView with suggestions from a web service</h1>
-
-<p>In the last update for my Android project <a href="https://play.google.com/store/apps/details?id=com.melnykov.booktracker">BookTracker</a> I have implemented an <a href="http://developer.android.com/reference/android/widget/AutoCompleteTextView.html">AutoCompleteTextView</a> with suggestions for a book title which are fetched from the <a href="https://developers.google.com/books/">Google Books</a>. There were a few requirements for such a view:</p>
+    <content type="html"><![CDATA[<p>In the last update for my Android project <a href="https://play.google.com/store/apps/details?id=com.melnykov.booktracker">BookTracker</a> I have implemented an <a href="http://developer.android.com/reference/android/widget/AutoCompleteTextView.html">AutoCompleteTextView</a> with suggestions for a book title which are fetched from the <a href="https://developers.google.com/books/">Google Books</a>. There were a few requirements for such a view:</p>
 
 <ul>
 <li>Suggestions data fetching must be performed in a separate thread</li>
