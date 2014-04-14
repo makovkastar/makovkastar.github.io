@@ -4,7 +4,7 @@
   <title><![CDATA[Category: android | Alex Melnykov]]></title>
   <link href="http://makovkastar.github.io/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://makovkastar.github.io/"/>
-  <updated>2014-04-14T21:09:14+03:00</updated>
+  <updated>2014-04-14T21:40:05+03:00</updated>
   <id>http://makovkastar.github.io/</id>
   <author>
     <name><![CDATA[Alex Melnykov]]></name>
@@ -45,7 +45,7 @@ public class BookAutoCompleteAdapter extends BaseAdapter implements Filterable {
 
 <pre><code>private static final int MAX_RESULTS = 10;
 private Context mContext;
-private List&lt;Book&gt; resultList;
+private List&lt;Book&gt; resultList = new ArrayList&lt;Book&gt;();
 
 public BookAutoCompleteAdapter(Context context) {
     mContext = context;
@@ -98,17 +98,20 @@ public Filter getFilter() {
         protected void publishResults(CharSequence constraint, FilterResults results) {
             if (results != null &amp;&amp; results.count &gt; 0) {
                 notifyDataSetChanged();
-            }
-            else {
+            } else {
                 notifyDataSetInvalidated();
             }
         }};
     return filter;
 }
 
+/**
+ * Returns a search result for the given book title.
+ */
 private List&lt;Book&gt; findBooks(Context context, String bookTitle) {
+    // GoogleBooksProtocol is a wrapper for the Google Books API
     GoogleBooksProtocol protocol = new GoogleBooksProtocol(context, MAX_RESULTS);
-    return protocol.findBooks(bookTitle, null);
+    return protocol.findBooks(bookTitle);
 }
 </code></pre>
 
@@ -153,7 +156,7 @@ private List&lt;Book&gt; findBooks(Context context, String bookTitle) {
 
 <h2>Step 3 &ndash; Add a delay before sending a data request to a web service</h2>
 
-<p>With a standard <code>AutoCompleteTextView</code> a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go &ndash; add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character &ndash; the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn&rsquo;t change the text during the delay time &ndash; the request is sent. To implement this behaviour we create a custom implementation of <code>AutoCompleteTextView</code> and override the method <code>performFiltering(CharSequence text, int keyCode)</code>. The variable <code>mAutoCompleteDelay</code> defines time in milliseconds after the request will be sent to a server if user didn&rsquo;t change the search string.</p>
+<p>With a standard <code>AutoCompleteTextView</code> a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go &ndash; add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character, the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn&rsquo;t change the text during the delay time, the request is sent. To implement this behaviour we create a custom implementation of <code>AutoCompleteTextView</code> and override the method <code>performFiltering(CharSequence text, int keyCode)</code>. The variable <code>mAutoCompleteDelay</code> defines time in milliseconds after the request will be sent to a server if the user didn&rsquo;t change the search string.</p>
 
 <h4>DelayAutoCompleteTextView.java</h4>
 
@@ -241,11 +244,11 @@ public void onFilterComplete(int count) {
 
 <p>The <code>ProgressBar</code> is connected to the <code>DelayAutoCompleteTextView</code> via <code>setLoadingIndicator(ProgressBar view)</code> method of the latter. It&rsquo;s visibility is set to <code>View.GONE</code> when a filtering starts and to <code>View.GONE</code> when complete.</p>
 
-<p>Now insert this layout where you need.</p>
+<p>Now insert this layout where you need it.</p>
 
 <h2>Step 5 &ndash; Assemble components together</h2>
 
-<p>Now when we have all components ready we can assemble them together:</p>
+<p>Finally when we have all components ready we can assemble them together:</p>
 
 <p>```java
 DelayAutoCompleteTextView bookTitle = (DelayAutoCompleteTextView) findViewById(R.id.et_book_title);</p>

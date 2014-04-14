@@ -4,7 +4,7 @@
   <title><![CDATA[Alex Melnykov]]></title>
   <link href="http://makovkastar.github.io/atom.xml" rel="self"/>
   <link href="http://makovkastar.github.io/"/>
-  <updated>2014-04-14T21:09:14+03:00</updated>
+  <updated>2014-04-14T21:40:05+03:00</updated>
   <id>http://makovkastar.github.io/</id>
   <author>
     <name><![CDATA[Alex Melnykov]]></name>
@@ -110,11 +110,14 @@
 <span class='line-number'>68</span>
 <span class='line-number'>69</span>
 <span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BookAutoCompleteAdapter</span> <span class="kd">extends</span> <span class="n">BaseAdapter</span> <span class="kd">implements</span> <span class="n">Filterable</span> <span class="o">{</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MAX_RESULTS</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
 </span><span class='line'>    <span class="kd">private</span> <span class="n">Context</span> <span class="n">mContext</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span> <span class="n">resultList</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span> <span class="n">resultList</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;();</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="kd">public</span> <span class="nf">BookAutoCompleteAdapter</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>        <span class="n">mContext</span> <span class="o">=</span> <span class="n">context</span><span class="o">;</span>
@@ -167,17 +170,20 @@
 </span><span class='line'>            <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">publishResults</span><span class="o">(</span><span class="n">CharSequence</span> <span class="n">constraint</span><span class="o">,</span> <span class="n">FilterResults</span> <span class="n">results</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">results</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">results</span><span class="o">.</span><span class="na">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>                    <span class="n">notifyDataSetChanged</span><span class="o">();</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>                <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
 </span><span class='line'>                    <span class="n">notifyDataSetInvalidated</span><span class="o">();</span>
 </span><span class='line'>                <span class="o">}</span>
 </span><span class='line'>            <span class="o">}};</span>
 </span><span class='line'>        <span class="k">return</span> <span class="n">filter</span><span class="o">;</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'>
+</span><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Returns a search result for the given book title.</span>
+</span><span class='line'><span class="cm">     */</span>
 </span><span class='line'>    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span> <span class="nf">findBooks</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">String</span> <span class="n">bookTitle</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// GoogleBooksProtocol is a wrapper for the Google Books API</span>
 </span><span class='line'>        <span class="n">GoogleBooksProtocol</span> <span class="n">protocol</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GoogleBooksProtocol</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">MAX_RESULTS</span><span class="o">);</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">protocol</span><span class="o">.</span><span class="na">findBooks</span><span class="o">(</span><span class="n">bookTitle</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">protocol</span><span class="o">.</span><span class="na">findBooks</span><span class="o">(</span><span class="n">bookTitle</span><span class="o">);</span>
 </span><span class='line'>    <span class="o">}</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
@@ -242,7 +248,7 @@
 
 <h2>Step 3 &ndash; Add a delay before sending a data request to a web service</h2>
 
-<p>With a standard <code>AutoCompleteTextView</code> a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go &ndash; add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character &ndash; the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn&rsquo;t change the text during the delay time &ndash; the request is sent. To implement this behaviour we create a custom implementation of <code>AutoCompleteTextView</code> and override the method <code>performFiltering(CharSequence text, int keyCode)</code>. The variable <code>mAutoCompleteDelay</code> defines time in milliseconds after the request will be sent to a server if user didn&rsquo;t change the search string.</p>
+<p>With a standard <code>AutoCompleteTextView</code> a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go &ndash; add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character, the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn&rsquo;t change the text during the delay time, the request is sent. To implement this behaviour we create a custom implementation of <code>AutoCompleteTextView</code> and override the method <code>performFiltering(CharSequence text, int keyCode)</code>. The variable <code>mAutoCompleteDelay</code> defines time in milliseconds after the request will be sent to a server if the user didn&rsquo;t change the search string.</p>
 
 <h4>DelayAutoCompleteTextView.java</h4>
 
@@ -390,11 +396,11 @@
 
 <p>The <code>ProgressBar</code> is connected to the <code>DelayAutoCompleteTextView</code> via <code>setLoadingIndicator(ProgressBar view)</code> method of the latter. It&rsquo;s visibility is set to <code>View.GONE</code> when a filtering starts and to <code>View.GONE</code> when complete.</p>
 
-<p>Now insert this layout where you need.</p>
+<p>Now insert this layout where you need it.</p>
 
 <h2>Step 5 &ndash; Assemble components together</h2>
 
-<p>Now when we have all components ready we can assemble them together:</p>
+<p>Finally when we have all components ready we can assemble them together:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
