@@ -5,9 +5,6 @@ date: 2014-04-12 09:52:04 +0300
 comments: true
 categories: [android, AutoCompleteTextView]
 ---
-
-# Android AutoCompleteTextView with suggestions from a web service #
-
 In the last update for my Android project [BookTracker](https://play.google.com/store/apps/details?id=com.melnykov.booktracker) I have implemented an [AutoCompleteTextView](http://developer.android.com/reference/android/widget/AutoCompleteTextView.html) with suggestions for a book title which are fetched from the [Google Books](https://developers.google.com/books/). There were a few requirements for such a view:
 
 - Suggestions data fetching must be performed in a separate thread
