@@ -14,7 +14,7 @@ In the last update for my Android project [BookTracker](https://play.google.com/
 
 The final result looks like this:
 
-{% img /images/autocomplete.gif %}
+{% video /videos/autocomplete.mp4 %}
 
 ## Step 1 - Implement an adapter for AutoCompleteTextView
 
