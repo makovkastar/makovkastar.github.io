@@ -231,17 +231,17 @@ Finally when we have all components ready we can assemble them together:
 
 ```java
 DelayAutoCompleteTextView bookTitle = (DelayAutoCompleteTextView) findViewById(R.id.et_book_title);
-    bookTitle.setThreshold(THRESHOLD);
-    bookTitle.setAdapter(new BookAutoCompleteAdapter(this)); // 'this' is Activity instance
-    bookTitle.setLoadingIndicator(
-                (android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator));
-    bookTitle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Book book = (Book) adapterView.getItemAtPosition(position);
-                bookTitle.setText(book.getTitle());
-            }
-        });
+bookTitle.setThreshold(THRESHOLD);
+bookTitle.setAdapter(new BookAutoCompleteAdapter(this)); // 'this' is Activity instance
+bookTitle.setLoadingIndicator(
+            (android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator));
+bookTitle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            Book book = (Book) adapterView.getItemAtPosition(position);
+            bookTitle.setText(book.getTitle());
+        }
+    });
 ```
 
 ` bookTitle.setThreshold(THRESHOLD)` specifies the minimum number of characters the user has to type in the edit box before the drop down list is shown.
