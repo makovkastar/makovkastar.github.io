@@ -221,7 +221,7 @@ We put the `ProgressBar` widget and the `DelayAutoCompleteTextView` to the `Fram
 </FrameLayout>
 ```
 
-The `ProgressBar` is connected to the `DelayAutoCompleteTextView` via `setLoadingIndicator(ProgressBar view)` method of the latter. It's visibility is set to `View.GONE` when a filtering starts and to `View.GONE` when complete. 
+The `ProgressBar` is connected to the `DelayAutoCompleteTextView` via `setLoadingIndicator(ProgressBar view)` method of the latter. It's visibility is set to `View.GONE` when a filtering starts and to `View.GONE` when completes. 
 
 Now insert this layout where you need it.
 
