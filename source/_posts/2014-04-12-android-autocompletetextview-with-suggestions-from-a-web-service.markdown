@@ -20,7 +20,7 @@ The final result looks like this:
 
 The adapter for the `AutoCompleteTextView` is a core component where suggestions are loaded and stored. The `BookAutoCompleteAdapter` must implement the [Filterable](http://developer.android.com/reference/android/widget/Filterable.html) interface in order for you to capture the user input from the `AutoCompleteTextView` and pass it as a search criteria to the web service. A single method of the `Filterable` interface is `getFilter()` that must return a [Filter](http://developer.android.com/reference/android/widget/Filter.html) instance which actually performs the data loading and publishing. `Filter` subclasses must implement 2 methods: `performFiltering (CharSequence constraint)` and `publishResults (CharSequence constraint, Filter.FilterResults results)`. 
 
-The `performFiltering` method is invoked in a worker thread so no need to create and start a new thread manually. It's done already by the `Filter` itself. The `publishResults` method is invoked in the UI thread to publish the filtering results in the user interface.
+The `performFiltering` method is invoked in a worker thread so there is no need to create and start a new thread manually. It's done already by the `Filter` itself. The `publishResults` method is invoked in the UI thread to publish filtering results in the user interface.
 
 
 ##### BookAutoCompleteAdapter.java:
@@ -104,7 +104,7 @@ public class BookAutoCompleteAdapter extends BaseAdapter implements Filterable {
 
 ## Step 2 - Create an XML layout for a suggestion list row
 
-After suggestions are fetched, a list of results is displayed bellow the view. Each list row consists of two lines: a book name and an author.
+When suggestions has been fetched, a list of results would be displayed bellow the view. Each list row consists of two lines: a book name and an author.
 
 #### simple\_dropdown\_item_2line.xml
 
@@ -138,7 +138,7 @@ After suggestions are fetched, a list of results is displayed bellow the view. E
 
 ## Step 3 - Add a delay before sending a data request to a web service
 
-With a standard `AutoCompleteTextView` a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go - add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character, the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn't change the text during the delay time, the request is sent. To implement this behaviour we create a custom implementation of `AutoCompleteTextView` and override the method `performFiltering(CharSequence text, int keyCode)`. The variable `mAutoCompleteDelay` defines time in milliseconds after the request will be sent to a server if the user didn't change the search string.
+With a standard `AutoCompleteTextView` a filtering is initiated after each entered character. If the user types text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go - add a small delay before user types the character and a request is sent to the web. If during this time the user enters the next character, the request for the previous search string is cancelled and rescheduled for delay time again. If the user doesn't change text during delay time, the request is sent. To implement this behaviour we create a custom implementation of `AutoCompleteTextView` and override the method `performFiltering(CharSequence text, int keyCode)`. The variable `mAutoCompleteDelay` defines time in milliseconds after a request will be sent to a server if the user doesn't change the search string.
 
 #### DelayAutoCompleteTextView.java
 
@@ -191,7 +191,7 @@ public class DelayAutoCompleteTextView extends AutoCompleteTextView {
 
 ## Step 4 - Add an animated progress to the view
 
-It's very important to provide a feedback to the user when he is typing the text. We have to display an animated progress in the same view  to say to the user "Hey, suggestions are loading right now and will be displayed shortly". In that way the user will expect something to happen and can wait until response received. Without this feedback the user will even not suspect that a field has suggestions.
+It's very important to provide a feedback to the user when he is typing text. We have to display an animated progress in the same view  to say to the user "Hey, suggestions are loading right now and will be displayed shortly". In that way the user will expect something to happen and can wait until response is received. Without such a feedback the user will even not suspect that a field has suggestions.
 
 We put the `ProgressBar` widget and the `DelayAutoCompleteTextView` to the `FrameLayout` and align the progress to the right side of the input field. We set `android:visibility="gone"` as the initial state of the progress:
 
@@ -209,7 +209,7 @@ We put the `ProgressBar` widget and the `DelayAutoCompleteTextView` to the `Fram
             android:layout_height="wrap_content"
             android:paddingRight="@dimen/padding_auto_complete"
             android:imeOptions="flagNoExtractUi|actionSearch"/>
-
+the te
     <ProgressBar
             android:id="@+id/pb_loading_indicator"
             style="?android:attr/progressBarStyleSmall"
@@ -221,7 +221,7 @@ We put the `ProgressBar` widget and the `DelayAutoCompleteTextView` to the `Fram
 </FrameLayout>
 ```
 
-The `ProgressBar` is connected to the `DelayAutoCompleteTextView` via `setLoadingIndicator(ProgressBar view)` method of the latter. It's visibility is set to `View.GONE` when a filtering starts and to `View.GONE` when completes. 
+The `ProgressBar` is connected to the `DelayAutoCompleteTextView` via `setLoadingIndicator(ProgressBar view)` method of the latter. It's visibility is set to `View.VISIBLE` when a filtering starts and to `View.GONE` when completes. 
 
 Now insert this layout where you need it.
 
