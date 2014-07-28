@@ -87,6 +87,8 @@
 
 <p>The final result looks like this:</p>
 
+<p><img src="/images/autocomplete.gif"></p>
+
 <h2>Step 1 &ndash; Implement an adapter for AutoCompleteTextView</h2>
 
 <p>The adapter for the <code>AutoCompleteTextView</code> is a core component where suggestions are loaded and stored. The <code>BookAutoCompleteAdapter</code> must implement the <a href="http://developer.android.com/reference/android/widget/Filterable.html">Filterable</a> interface in order for you to capture the user input from the <code>AutoCompleteTextView</code> and pass it as a search criteria to the web service. A single method of the <code>Filterable</code> interface is <code>getFilter()</code> that must return a <a href="http://developer.android.com/reference/android/widget/Filter.html">Filter</a> instance which actually performs the data loading and publishing. <code>Filter</code> subclasses must implement 2 methods: <code>performFiltering (CharSequence constraint)</code> and <code>publishResults (CharSequence constraint, Filter.FilterResults results)</code>.</p>

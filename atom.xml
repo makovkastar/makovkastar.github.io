@@ -4,7 +4,7 @@
   <title><![CDATA[Alex Melnykov]]></title>
   <link href="http://makovkastar.github.io/atom.xml" rel="self"/>
   <link href="http://makovkastar.github.io/"/>
-  <updated>2014-07-28T23:27:40+03:00</updated>
+  <updated>2014-07-28T23:32:02+03:00</updated>
   <id>http://makovkastar.github.io/</id>
   <author>
     <name><![CDATA[Alex Melnykov]]></name>
@@ -29,6 +29,8 @@
 
 
 <p>The final result looks like this:</p>
+
+<p><img src="http://makovkastar.github.io/images/autocomplete.gif"></p>
 
 <h2>Step 1 &ndash; Implement an adapter for AutoCompleteTextView</h2>
 
