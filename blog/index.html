@@ -88,13 +88,11 @@
 
 <p>The final result looks like this:</p>
 
-<p><img src="/images/autocomplete.gif"></p>
-
 <h2>Step 1 &ndash; Implement an adapter for AutoCompleteTextView</h2>
 
-<p>The adapter for the <code>AutoCompleteTextView</code> is a core component where suggestions are loaded and stored. The <code>BookAutoCompleteAdapter</code> must implement the <a href="http://developer.android.com/reference/android/widget/Filterable.html">Filterable</a> interface in order for you to capture the user input from the <code>AutoCompleteTextView</code> and pass it as a search criteria to the web service. A single method of the <code>Filterable</code> interface is <code>getFilter()</code> that must return a <a href="http://developer.android.com/reference/android/widget/Filter.html">Filter</a> instance which is actually performs the data loading and publishing. <code>Filter</code> subclasses must implement 2 methods: <code>performFiltering (CharSequence constraint)</code> and <code>publishResults (CharSequence constraint, Filter.FilterResults results)</code>.</p>
+<p>The adapter for the <code>AutoCompleteTextView</code> is a core component where suggestions are loaded and stored. The <code>BookAutoCompleteAdapter</code> must implement the <a href="http://developer.android.com/reference/android/widget/Filterable.html">Filterable</a> interface in order for you to capture the user input from the <code>AutoCompleteTextView</code> and pass it as a search criteria to the web service. A single method of the <code>Filterable</code> interface is <code>getFilter()</code> that must return a <a href="http://developer.android.com/reference/android/widget/Filter.html">Filter</a> instance which actually performs the data loading and publishing. <code>Filter</code> subclasses must implement 2 methods: <code>performFiltering (CharSequence constraint)</code> and <code>publishResults (CharSequence constraint, Filter.FilterResults results)</code>.</p>
 
-<p>The <code>performFiltering</code> method is invoked in a worker thread so no need to create and start a new thread manually. It&rsquo;s done already by the <code>Filter</code> itself. The <code>publishResults</code> method is invoked in the UI thread to publish the filtering results in the user interface.</p>
+<p>The <code>performFiltering</code> method is invoked in a worker thread so there is no need to create and start a new thread manually. It&rsquo;s done already by the <code>Filter</code> itself. The <code>publishResults</code> method is invoked in the UI thread to publish filtering results in the user interface.</p>
 
 <h5>BookAutoCompleteAdapter.java:</h5>
 
@@ -249,7 +247,7 @@
 
 <h2>Step 2 &ndash; Create an XML layout for a suggestion list row</h2>
 
-<p>After suggestions are fetched, a list of results is displayed bellow the view. Each list row consists of two lines: a book name and an author.</p>
+<p>When suggestions has been fetched, a list of results would be displayed bellow the view. Each list row consists of two lines: a book name and an author.</p>
 
 <h4>simple_dropdown_item_2line.xml</h4>
 
@@ -306,7 +304,7 @@
 
 <h2>Step 3 &ndash; Add a delay before sending a data request to a web service</h2>
 
-<p>With a standard <code>AutoCompleteTextView</code> a filtering will be initiated after each entered character. If the user is typing a text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go &ndash; add a small delay before user types the character and the request is sent to the web. If during this time the user enters the next character, the request for the previous search string is cancelled and rescheduled for the delay time again. If the user doesn&rsquo;t change the text during the delay time, the request is sent. To implement this behaviour we create a custom implementation of <code>AutoCompleteTextView</code> and override the method <code>performFiltering(CharSequence text, int keyCode)</code>. The variable <code>mAutoCompleteDelay</code> defines time in milliseconds after the request will be sent to a server if the user didn&rsquo;t change the search string.</p>
+<p>With a standard <code>AutoCompleteTextView</code> a filtering is initiated after each entered character. If the user types text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go &ndash; add a small delay before user types the character and a request is sent to the web. If during this time the user enters the next character, the request for the previous search string is cancelled and rescheduled for delay time again. If the user doesn&rsquo;t change text during delay time, the request is sent. To implement this behaviour we create a custom implementation of <code>AutoCompleteTextView</code> and override the method <code>performFiltering(CharSequence text, int keyCode)</code>. The variable <code>mAutoCompleteDelay</code> defines time in milliseconds after a request will be sent to a server if the user doesn&rsquo;t change the search string.</p>
 
 <h4>DelayAutoCompleteTextView.java</h4>
 
@@ -403,7 +401,7 @@
 
 <h2>Step 4 &ndash; Add an animated progress to the view</h2>
 
-<p>It&rsquo;s very important to provide a feedback to the user when he is typing the text. We have to display an animated progress in the same view  to say to the user &ldquo;Hey, suggestions are loading right now and will be displayed shortly&rdquo;. In that way the user will expect something to happen and can wait until response received. Without this feedback the user will even not suspect that a field has suggestions.</p>
+<p>It&rsquo;s very important to provide a feedback to the user when he is typing text. We have to display an animated progress in the same view  to say to the user &ldquo;Hey, suggestions are loading right now and will be displayed shortly&rdquo;. In that way the user will expect something to happen and can wait until response is received. Without such a feedback the user will even not suspect that a field has suggestions.</p>
 
 <p>We put the <code>ProgressBar</code> widget and the <code>DelayAutoCompleteTextView</code> to the <code>FrameLayout</code> and align the progress to the right side of the input field. We set <code>android:visibility="gone"</code> as the initial state of the progress:</p>
 
@@ -439,7 +437,7 @@
 </span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
 </span><span class='line'>            <span class="na">android:paddingRight=</span><span class="s">&quot;@dimen/padding_auto_complete&quot;</span>
 </span><span class='line'>            <span class="na">android:imeOptions=</span><span class="s">&quot;flagNoExtractUi|actionSearch&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>
+</span><span class='line'>the te
 </span><span class='line'>    <span class="nt">&lt;ProgressBar</span>
 </span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/pb_loading_indicator&quot;</span>
 </span><span class='line'>            <span class="na">style=</span><span class="s">&quot;?android:attr/progressBarStyleSmall&quot;</span>
@@ -452,7 +450,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The <code>ProgressBar</code> is connected to the <code>DelayAutoCompleteTextView</code> via <code>setLoadingIndicator(ProgressBar view)</code> method of the latter. It&rsquo;s visibility is set to <code>View.GONE</code> when a filtering starts and to <code>View.GONE</code> when complete.</p>
+<p>The <code>ProgressBar</code> is connected to the <code>DelayAutoCompleteTextView</code> via <code>setLoadingIndicator(ProgressBar view)</code> method of the latter. It&rsquo;s visibility is set to <code>View.VISIBLE</code> when a filtering starts and to <code>View.GONE</code> when completes.</p>
 
 <p>Now insert this layout where you need it.</p>
 
@@ -473,17 +471,17 @@
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">DelayAutoCompleteTextView</span> <span class="n">bookTitle</span> <span class="o">=</span> <span class="o">(</span><span class="n">DelayAutoCompleteTextView</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et_book_title</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">bookTitle</span><span class="o">.</span><span class="na">setThreshold</span><span class="o">(</span><span class="n">THRESHOLD</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">bookTitle</span><span class="o">.</span><span class="na">setAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">BookAutoCompleteAdapter</span><span class="o">(</span><span class="k">this</span><span class="o">));</span> <span class="c1">// &#39;this&#39; is Activity instance</span>
-</span><span class='line'>    <span class="n">bookTitle</span><span class="o">.</span><span class="na">setLoadingIndicator</span><span class="o">(</span>
-</span><span class='line'>                <span class="o">(</span><span class="n">android</span><span class="o">.</span><span class="na">widget</span><span class="o">.</span><span class="na">ProgressBar</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">pb_loading_indicator</span><span class="o">));</span>
-</span><span class='line'>    <span class="n">bookTitle</span><span class="o">.</span><span class="na">setOnItemClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">AdapterView</span><span class="o">.</span><span class="na">OnItemClickListener</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>            <span class="nd">@Override</span>
-</span><span class='line'>            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onItemClick</span><span class="o">(</span><span class="n">AdapterView</span><span class="o">&lt;?&gt;</span> <span class="n">adapterView</span><span class="o">,</span> <span class="n">View</span> <span class="n">view</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">Book</span> <span class="n">book</span> <span class="o">=</span> <span class="o">(</span><span class="n">Book</span><span class="o">)</span> <span class="n">adapterView</span><span class="o">.</span><span class="na">getItemAtPosition</span><span class="o">(</span><span class="n">position</span><span class="o">);</span>
-</span><span class='line'>                <span class="n">bookTitle</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">book</span><span class="o">.</span><span class="na">getTitle</span><span class="o">());</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">});</span>
+</span><span class='line'><span class="n">bookTitle</span><span class="o">.</span><span class="na">setThreshold</span><span class="o">(</span><span class="n">THRESHOLD</span><span class="o">);</span>
+</span><span class='line'><span class="n">bookTitle</span><span class="o">.</span><span class="na">setAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">BookAutoCompleteAdapter</span><span class="o">(</span><span class="k">this</span><span class="o">));</span> <span class="c1">// &#39;this&#39; is Activity instance</span>
+</span><span class='line'><span class="n">bookTitle</span><span class="o">.</span><span class="na">setLoadingIndicator</span><span class="o">(</span>
+</span><span class='line'>            <span class="o">(</span><span class="n">android</span><span class="o">.</span><span class="na">widget</span><span class="o">.</span><span class="na">ProgressBar</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">pb_loading_indicator</span><span class="o">));</span>
+</span><span class='line'><span class="n">bookTitle</span><span class="o">.</span><span class="na">setOnItemClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">AdapterView</span><span class="o">.</span><span class="na">OnItemClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onItemClick</span><span class="o">(</span><span class="n">AdapterView</span><span class="o">&lt;?&gt;</span> <span class="n">adapterView</span><span class="o">,</span> <span class="n">View</span> <span class="n">view</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">Book</span> <span class="n">book</span> <span class="o">=</span> <span class="o">(</span><span class="n">Book</span><span class="o">)</span> <span class="n">adapterView</span><span class="o">.</span><span class="na">getItemAtPosition</span><span class="o">(</span><span class="n">position</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">bookTitle</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">book</span><span class="o">.</span><span class="na">getTitle</span><span class="o">());</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">});</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
