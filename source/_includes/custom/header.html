@@ -1,8 +1,6 @@
 <hgroup>
-  <div id="header-inner">
-    <span class="first"><a href="{{ root_url }}/">{{ site.title }}</a></span>
-    <span><a href="{{ root_url }}/about">about</a></span>
-    <span><a href="{{ root_url }}/projects">projects</a></span>
-    <span class="last"><a href="{{ site.subscribe_rss }}" title="subscribe via RSS">rss</a></span>
-  </div>
+  <h1><a href="{{ root_url }}/">{{ site.title }}</a></h1>
+  {% if site.subtitle %}
+    <h2>{{ site.subtitle }}</h2>
+  {% endif %}
 </hgroup>
