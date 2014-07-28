@@ -9,8 +9,7 @@
   <meta name="author" content="Alex Melnykov">
 
   
-  <meta name="description" content="2014 Android AutoCompleteTextView with suggestions from a web service
-Apr 12 2014 posted in AutoCompleteTextView, android Recent Posts Android &hellip;">
+  <meta name="description" content="In the last update for my Android project BookTracker I have implemented an AutoCompleteTextView with suggestions for a book title which are fetched &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -25,102 +24,519 @@ Apr 12 2014 posted in AutoCompleteTextView, android Recent Posts Android &hellip
   <link href="/atom.xml" rel="alternate" title="Alex Melnykov" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='//fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='//fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
   
 
 </head>
 
-<body   >
+<body   class="collapse-sidebar sidebar-footer" >
   <header role="banner"><hgroup>
-  <div id="header-inner">
-    <span class="first"><a href="/">Alex Melnykov</a></span>
-    <span><a href="/about">about</a></span>
-    <span><a href="/projects">projects</a></span>
-    <span class="last"><a href="/atom.xml" title="subscribe via RSS">rss</a></span>
-  </div>
+  <h1><a href="/">Alex Melnykov</a></h1>
+  
+    <h2>Android developer</h2>
+  
 </hgroup>
 
 </header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+  
+  
+  
+  
+<ul class="subscription">
+  <li><a href="https://github.com/makovkastar" rel="subscribe-github" title="@makovkastar on GitHub">GitHub</a></li>
+</ul>
+  
+  
+  
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:makovkastar.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
   <div id="main">
     <div id="content">
-      <div>
-
-<article role="article">
-<div id="blog-archives">
-  
-
+      <div class="blog-index">
   
   
-    
-    <h2>2014</h2>
   
     <article>
       
-<h1><a href="/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service/">Android AutoCompleteTextView with suggestions from a web service</a></h1>
-<time datetime="2014-04-12T09:52:04+03:00" pubdate><span class='month'>Apr</span> <span class='day'>12</span> <span class='year'>2014</span></time>
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service/">Android AutoCompleteTextView With Suggestions From a Web Service</a></h1>
+    
+    
+      <p class="meta">
+        
 
-<footer>
-  <span class="categories">posted in <a class='category' href='/blog/categories/autocompletetextview/'>AutoCompleteTextView</a>, <a class='category' href='/blog/categories/android/'>android</a></span>
-</footer>
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-12T09:52:04+03:00" pubdate data-updated="true">Apr 12<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In the last update for my Android project <a href="https://play.google.com/store/apps/details?id=com.melnykov.booktracker">BookTracker</a> I have implemented an <a href="http://developer.android.com/reference/android/widget/AutoCompleteTextView.html">AutoCompleteTextView</a> with suggestions for a book title which are fetched from the <a href="https://developers.google.com/books/">Google Books</a>. There were a few requirements for such a view:</p>
+
+<ul>
+<li>Suggestions data fetching must be performed in a separate thread</li>
+<li>Data fetching should start only when a user pauses typing (to prevent a bunch of requests to a server after every entered character)</li>
+<li>Suggestions should be shown only if the user enters a string of some minimum length (no reason to start data fetching for string of 2 or 3 characters)</li>
+<li>An animated progress bar must be shown on the right side of the view when suggestions fetching is in progress</li>
+</ul>
+
+
+<p>The final result looks like this:</p>
+
+<p><img src="/images/autocomplete.gif"></p>
+
+<h2>Step 1 &ndash; Implement an adapter for AutoCompleteTextView</h2>
+
+<p>The adapter for the <code>AutoCompleteTextView</code> is a core component where suggestions are loaded and stored. The <code>BookAutoCompleteAdapter</code> must implement the <a href="http://developer.android.com/reference/android/widget/Filterable.html">Filterable</a> interface in order for you to capture the user input from the <code>AutoCompleteTextView</code> and pass it as a search criteria to the web service. A single method of the <code>Filterable</code> interface is <code>getFilter()</code> that must return a <a href="http://developer.android.com/reference/android/widget/Filter.html">Filter</a> instance which actually performs the data loading and publishing. <code>Filter</code> subclasses must implement 2 methods: <code>performFiltering (CharSequence constraint)</code> and <code>publishResults (CharSequence constraint, Filter.FilterResults results)</code>.</p>
+
+<p>The <code>performFiltering</code> method is invoked in a worker thread so there is no need to create and start a new thread manually. It&rsquo;s done already by the <code>Filter</code> itself. The <code>publishResults</code> method is invoked in the UI thread to publish filtering results in the user interface.</p>
+
+<h5>BookAutoCompleteAdapter.java:</h5>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BookAutoCompleteAdapter</span> <span class="kd">extends</span> <span class="n">BaseAdapter</span> <span class="kd">implements</span> <span class="n">Filterable</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MAX_RESULTS</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Context</span> <span class="n">mContext</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span> <span class="n">resultList</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">BookAutoCompleteAdapter</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">mContext</span> <span class="o">=</span> <span class="n">context</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getCount</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">resultList</span><span class="o">.</span><span class="na">size</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Book</span> <span class="nf">getItem</span><span class="o">(</span><span class="kt">int</span> <span class="n">index</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">resultList</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">long</span> <span class="nf">getItemId</span><span class="o">(</span><span class="kt">int</span> <span class="n">position</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">position</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">View</span> <span class="nf">getView</span><span class="o">(</span><span class="kt">int</span> <span class="n">position</span><span class="o">,</span> <span class="n">View</span> <span class="n">convertView</span><span class="o">,</span> <span class="n">ViewGroup</span> <span class="n">parent</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">convertView</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">LayoutInflater</span> <span class="n">inflater</span> <span class="o">=</span> <span class="o">(</span><span class="n">LayoutInflater</span><span class="o">)</span> <span class="n">mContext</span>
+</span><span class='line'>                    <span class="o">.</span><span class="na">getSystemService</span><span class="o">(</span><span class="n">Context</span><span class="o">.</span><span class="na">LAYOUT_INFLATER_SERVICE</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">convertView</span> <span class="o">=</span> <span class="n">inflater</span><span class="o">.</span><span class="na">inflate</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">simple_dropdown_item_2line</span><span class="o">,</span> <span class="n">parent</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="o">((</span><span class="n">TextView</span><span class="o">)</span> <span class="n">convertView</span><span class="o">.</span><span class="na">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">text1</span><span class="o">)).</span><span class="na">setText</span><span class="o">(</span><span class="n">getItem</span><span class="o">(</span><span class="n">position</span><span class="o">).</span><span class="na">getTitle</span><span class="o">());</span>
+</span><span class='line'>        <span class="o">((</span><span class="n">TextView</span><span class="o">)</span> <span class="n">convertView</span><span class="o">.</span><span class="na">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">text2</span><span class="o">)).</span><span class="na">setText</span><span class="o">(</span><span class="n">getItem</span><span class="o">(</span><span class="n">position</span><span class="o">).</span><span class="na">getAuthor</span><span class="o">());</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">convertView</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Filter</span> <span class="nf">getFilter</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Filter</span> <span class="n">filter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Filter</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">protected</span> <span class="n">FilterResults</span> <span class="nf">performFiltering</span><span class="o">(</span><span class="n">CharSequence</span> <span class="n">constraint</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">FilterResults</span> <span class="n">filterResults</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FilterResults</span><span class="o">();</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">constraint</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">resultList</span> <span class="o">=</span> <span class="n">findBooks</span><span class="o">(</span><span class="n">mContext</span><span class="o">,</span> <span class="n">constraint</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="c1">// Assign the data to the FilterResults</span>
+</span><span class='line'>                    <span class="n">filterResults</span><span class="o">.</span><span class="na">values</span> <span class="o">=</span> <span class="n">resultList</span><span class="o">;</span>
+</span><span class='line'>                    <span class="n">filterResults</span><span class="o">.</span><span class="na">count</span> <span class="o">=</span> <span class="n">resultList</span><span class="o">.</span><span class="na">size</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">filterResults</span><span class="o">;</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="nd">@Override</span>
+</span><span class='line'>            <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">publishResults</span><span class="o">(</span><span class="n">CharSequence</span> <span class="n">constraint</span><span class="o">,</span> <span class="n">FilterResults</span> <span class="n">results</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">results</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">results</span><span class="o">.</span><span class="na">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">notifyDataSetChanged</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">notifyDataSetInvalidated</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}};</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">filter</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Returns a search result for the given book title.</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span> <span class="nf">findBooks</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">String</span> <span class="n">bookTitle</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// GoogleBooksProtocol is a wrapper for the Google Books API</span>
+</span><span class='line'>        <span class="n">GoogleBooksProtocol</span> <span class="n">protocol</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GoogleBooksProtocol</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">MAX_RESULTS</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">protocol</span><span class="o">.</span><span class="na">findBooks</span><span class="o">(</span><span class="n">bookTitle</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 2 &ndash; Create an XML layout for a suggestion list row</h2>
+
+<p>When suggestions has been fetched, a list of results would be displayed bellow the view. Each list row consists of two lines: a book name and an author.</p>
+
+<h4>simple_dropdown_item_2line.xml</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;TwoLineListItem</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
+</span><span class='line'>                 <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>                 <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                 <span class="na">android:minHeight=</span><span class="s">&quot;?android:attr/listPreferredItemHeight&quot;</span>
+</span><span class='line'>                 <span class="na">android:mode=</span><span class="s">&quot;twoLine&quot;</span>
+</span><span class='line'>                 <span class="na">android:paddingStart=</span><span class="s">&quot;?android:attr/listPreferredItemPaddingStart&quot;</span>
+</span><span class='line'>                 <span class="na">android:paddingEnd=</span><span class="s">&quot;?android:attr/listPreferredItemPaddingEnd&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;TextView</span> <span class="na">android:id=</span><span class="s">&quot;@+id/text1&quot;</span>
+</span><span class='line'>              <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>              <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>              <span class="na">android:layout_marginTop=</span><span class="s">&quot;@dimen/margin_default&quot;</span>
+</span><span class='line'>              <span class="na">android:textAppearance=</span><span class="s">&quot;?android:attr/textAppearanceLargePopupMenu&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;TextView</span> <span class="na">android:id=</span><span class="s">&quot;@+id/text2&quot;</span>
+</span><span class='line'>              <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>              <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>              <span class="na">android:layout_below=</span><span class="s">&quot;@id/text1&quot;</span>
+</span><span class='line'>              <span class="na">android:layout_alignStart=</span><span class="s">&quot;@id/text1&quot;</span>
+</span><span class='line'>              <span class="na">android:layout_marginBottom=</span><span class="s">&quot;@dimen/margin_default&quot;</span>
+</span><span class='line'>              <span class="na">android:textAppearance=</span><span class="s">&quot;?android:attr/textAppearanceSmall&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/TwoLineListItem&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 3 &ndash; Add a delay before sending a data request to a web service</h2>
+
+<p>With a standard <code>AutoCompleteTextView</code> a filtering is initiated after each entered character. If the user types text nonstop, data fetched for the previous request may become invalid on every new letter appended to the search string. You get extra expensive and unnecessary network calls, chance of exceeding API limits of your web service, stale suggestion results loaded for an incomplete search string. The way we go &ndash; add a small delay before user types the character and a request is sent to the web. If during this time the user enters the next character, the request for the previous search string is cancelled and rescheduled for delay time again. If the user doesn&rsquo;t change text during delay time, the request is sent. To implement this behaviour we create a custom implementation of <code>AutoCompleteTextView</code> and override the method <code>performFiltering(CharSequence text, int keyCode)</code>. The variable <code>mAutoCompleteDelay</code> defines time in milliseconds after a request will be sent to a server if the user doesn&rsquo;t change the search string.</p>
+
+<h4>DelayAutoCompleteTextView.java</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DelayAutoCompleteTextView</span> <span class="kd">extends</span> <span class="n">AutoCompleteTextView</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MESSAGE_TEXT_CHANGED</span> <span class="o">=</span> <span class="mi">100</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">DEFAULT_AUTOCOMPLETE_DELAY</span> <span class="o">=</span> <span class="mi">750</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">int</span> <span class="n">mAutoCompleteDelay</span> <span class="o">=</span> <span class="n">DEFAULT_AUTOCOMPLETE_DELAY</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">ProgressBar</span> <span class="n">mLoadingIndicator</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Handler</span> <span class="n">mHandler</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Handler</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handleMessage</span><span class="o">(</span><span class="n">Message</span> <span class="n">msg</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">DelayAutoCompleteTextView</span><span class="o">.</span><span class="na">super</span><span class="o">.</span><span class="na">performFiltering</span><span class="o">((</span><span class="n">CharSequence</span><span class="o">)</span> <span class="n">msg</span><span class="o">.</span><span class="na">obj</span><span class="o">,</span> <span class="n">msg</span><span class="o">.</span><span class="na">arg1</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">};</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">DelayAutoCompleteTextView</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">AttributeSet</span> <span class="n">attrs</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">attrs</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setLoadingIndicator</span><span class="o">(</span><span class="n">ProgressBar</span> <span class="n">progressBar</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">mLoadingIndicator</span> <span class="o">=</span> <span class="n">progressBar</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAutoCompleteDelay</span><span class="o">(</span><span class="kt">int</span> <span class="n">autoCompleteDelay</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">mAutoCompleteDelay</span> <span class="o">=</span> <span class="n">autoCompleteDelay</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">performFiltering</span><span class="o">(</span><span class="n">CharSequence</span> <span class="n">text</span><span class="o">,</span> <span class="kt">int</span> <span class="n">keyCode</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">mLoadingIndicator</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mLoadingIndicator</span><span class="o">.</span><span class="na">setVisibility</span><span class="o">(</span><span class="n">View</span><span class="o">.</span><span class="na">VISIBLE</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="n">mHandler</span><span class="o">.</span><span class="na">removeMessages</span><span class="o">(</span><span class="n">MESSAGE_TEXT_CHANGED</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">mHandler</span><span class="o">.</span><span class="na">sendMessageDelayed</span><span class="o">(</span><span class="n">mHandler</span><span class="o">.</span><span class="na">obtainMessage</span><span class="o">(</span><span class="n">MESSAGE_TEXT_CHANGED</span><span class="o">,</span> <span class="n">text</span><span class="o">),</span> <span class="n">mAutoCompleteDelay</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onFilterComplete</span><span class="o">(</span><span class="kt">int</span> <span class="n">count</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">mLoadingIndicator</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mLoadingIndicator</span><span class="o">.</span><span class="na">setVisibility</span><span class="o">(</span><span class="n">View</span><span class="o">.</span><span class="na">GONE</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">onFilterComplete</span><span class="o">(</span><span class="n">count</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Step 4 &ndash; Add an animated progress to the view</h2>
+
+<p>It&rsquo;s very important to provide a feedback to the user when he is typing text. We have to display an animated progress in the same view  to say to the user &ldquo;Hey, suggestions are loading right now and will be displayed shortly&rdquo;. In that way the user will expect something to happen and can wait until response is received. Without such a feedback the user will even not suspect that a field has suggestions.</p>
+
+<p>We put the <code>ProgressBar</code> widget and the <code>DelayAutoCompleteTextView</code> to the <code>FrameLayout</code> and align the progress to the right side of the input field. We set <code>android:visibility="gone"</code> as the initial state of the progress:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;FrameLayout</span> <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>                 <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>                 <span class="na">android:layout_margin=</span><span class="s">&quot;@dimen/margin_default&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;com.melnykov.booktracker.ui.DelayAutoCompleteTextView</span>
+</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/et_book_title&quot;</span>
+</span><span class='line'>            <span class="na">android:inputType=</span><span class="s">&quot;textCapSentences&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:paddingRight=</span><span class="s">&quot;@dimen/padding_auto_complete&quot;</span>
+</span><span class='line'>            <span class="na">android:imeOptions=</span><span class="s">&quot;flagNoExtractUi|actionSearch&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>the te
+</span><span class='line'>    <span class="nt">&lt;ProgressBar</span>
+</span><span class='line'>            <span class="na">android:id=</span><span class="s">&quot;@+id/pb_loading_indicator&quot;</span>
+</span><span class='line'>            <span class="na">style=</span><span class="s">&quot;?android:attr/progressBarStyleSmall&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_gravity=</span><span class="s">&quot;center_vertical|right&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_marginRight=</span><span class="s">&quot;@dimen/margin_default&quot;</span>
+</span><span class='line'>            <span class="na">android:visibility=</span><span class="s">&quot;gone&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/FrameLayout&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>ProgressBar</code> is connected to the <code>DelayAutoCompleteTextView</code> via <code>setLoadingIndicator(ProgressBar view)</code> method of the latter. It&rsquo;s visibility is set to <code>View.VISIBLE</code> when a filtering starts and to <code>View.GONE</code> when completes.</p>
+
+<p>Now insert this layout where you need it.</p>
+
+<h2>Step 5 &ndash; Assemble components together</h2>
+
+<p>Finally when we have all components ready we can assemble them together:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">DelayAutoCompleteTextView</span> <span class="n">bookTitle</span> <span class="o">=</span> <span class="o">(</span><span class="n">DelayAutoCompleteTextView</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">et_book_title</span><span class="o">);</span>
+</span><span class='line'><span class="n">bookTitle</span><span class="o">.</span><span class="na">setThreshold</span><span class="o">(</span><span class="n">THRESHOLD</span><span class="o">);</span>
+</span><span class='line'><span class="n">bookTitle</span><span class="o">.</span><span class="na">setAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">BookAutoCompleteAdapter</span><span class="o">(</span><span class="k">this</span><span class="o">));</span> <span class="c1">// &#39;this&#39; is Activity instance</span>
+</span><span class='line'><span class="n">bookTitle</span><span class="o">.</span><span class="na">setLoadingIndicator</span><span class="o">(</span>
+</span><span class='line'>            <span class="o">(</span><span class="n">android</span><span class="o">.</span><span class="na">widget</span><span class="o">.</span><span class="na">ProgressBar</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">pb_loading_indicator</span><span class="o">));</span>
+</span><span class='line'><span class="n">bookTitle</span><span class="o">.</span><span class="na">setOnItemClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">AdapterView</span><span class="o">.</span><span class="na">OnItemClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onItemClick</span><span class="o">(</span><span class="n">AdapterView</span><span class="o">&lt;?&gt;</span> <span class="n">adapterView</span><span class="o">,</span> <span class="n">View</span> <span class="n">view</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">Book</span> <span class="n">book</span> <span class="o">=</span> <span class="o">(</span><span class="n">Book</span><span class="o">)</span> <span class="n">adapterView</span><span class="o">.</span><span class="na">getItemAtPosition</span><span class="o">(</span><span class="n">position</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">bookTitle</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">book</span><span class="o">.</span><span class="na">getTitle</span><span class="o">());</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>bookTitle.setThreshold(THRESHOLD)</code> specifies the minimum number of characters the user has to type in the edit box before the drop down list is shown.</p>
+
+<p><code>bookTitle.setLoadingIndicator((android.widget.ProgressBar) findViewById(R.id.pb_loading_indicator))</code> binds the <code>ProgressBar</code> view to the <code>DelayAutoCompleteTextView</code>.</p>
+
+<p>It&rsquo;s important to set <code>OnItemClickListener</code> for the <code>DelayAutoCompleteTextView</code> and set a correct value to the target input field. Without doing that a string obtained via call to <code>toString()</code> of a selected object will be pasted to the field.</p>
+</div>
+  
+  
 
 
     </article>
   
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+  </div>
 </div>
-</article>
-</div>
-
 <aside class="sidebar">
   
-    <section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
     
-      <li class="post">
-        <a href="/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service/">Android AutoCompleteTextView With Suggestions From a Web Service</a>
-      </li>
-    
-  </ul>
-</section>
-
-<section>
-  <h1>GitHub Repos</h1>
-  <ul id="gh_repos">
-    <li class="loading">Status updating&#8230;</li>
-  </ul>
-  
-  <a href="https://github.com/makovkastar">@makovkastar</a> on GitHub
-  
-  <script type="text/javascript">
-    $(document).ready(function(){
-        if (!window.jXHR){
-            var jxhr = document.createElement('script');
-            jxhr.type = 'text/javascript';
-            jxhr.src = '/javascripts/libs/jXHR.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(jxhr, s);
-        }
-
-        github.showRepos({
-            user: 'makovkastar',
-            count: 0,
-            skip_forks: true,
-            target: '#gh_repos'
-        });
-    });
-  </script>
-  <script src="/javascripts/github.js" type="text/javascript"> </script>
-</section>
-
-
-
-
-
   
 </aside>
 
@@ -128,22 +544,29 @@ Apr 12 2014 posted in AutoCompleteTextView, android Recent Posts Android &hellip
   </div>
   <footer role="contentinfo"><p>
   Copyright &copy; 2014 - Alex Melnykov -
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> | Themed with <a href="https://github.com/lucaslew/whitespace">Whitespace</a></span>
 </p>
 
 </footer>
   
 
+<script type="text/javascript">
+      var disqus_shortname = 'disqus_A4F3VGwZnb';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
 
 
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id; js.async = true;
-  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
 
 
 
@@ -162,7 +585,7 @@ Apr 12 2014 posted in AutoCompleteTextView, android Recent Posts Android &hellip
       var twitterWidgets = document.createElement('script');
       twitterWidgets.type = 'text/javascript';
       twitterWidgets.async = true;
-      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
     })();
   </script>

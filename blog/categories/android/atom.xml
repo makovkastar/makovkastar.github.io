@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: android | Alex Melnykov]]></title>
+  <title><![CDATA[Category: Android | Alex Melnykov]]></title>
   <link href="http://makovkastar.github.io/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://makovkastar.github.io/"/>
-  <updated>2014-07-28T23:36:38+03:00</updated>
+  <updated>2014-07-28T23:48:22+03:00</updated>
   <id>http://makovkastar.github.io/</id>
   <author>
     <name><![CDATA[Alex Melnykov]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Android AutoCompleteTextView with suggestions from a web service]]></title>
+    <title type="html"><![CDATA[Android AutoCompleteTextView With Suggestions From a Web Service]]></title>
     <link href="http://makovkastar.github.io/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service/"/>
     <updated>2014-04-12T09:52:04+03:00</updated>
     <id>http://makovkastar.github.io/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service</id>

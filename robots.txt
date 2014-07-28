@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: 
+Disallow:
 
-Sitemap: http://makovkastar.github.io/sitemap.xml 
+Sitemap: http://makovkastar.github.io/sitemap.xml
