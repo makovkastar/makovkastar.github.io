@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Autocompletetextview | Alex Melnykov]]></title>
-  <link href="http://makovkastar.github.io/blog/categories/autocompletetextview/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Suggestions | Alex Melnykov]]></title>
+  <link href="http://makovkastar.github.io/blog/categories/suggestions/atom.xml" rel="self"/>
   <link href="http://makovkastar.github.io/"/>
   <updated>2014-07-28T23:53:45+03:00</updated>
   <id>http://makovkastar.github.io/</id>
