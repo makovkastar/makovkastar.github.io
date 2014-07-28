@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Webservice | Alex Melnykov]]></title>
   <link href="http://makovkastar.github.io/blog/categories/webservice/atom.xml" rel="self"/>
   <link href="http://makovkastar.github.io/"/>
-  <updated>2014-07-28T23:53:45+03:00</updated>
+  <updated>2014-07-28T23:55:54+03:00</updated>
   <id>http://makovkastar.github.io/</id>
   <author>
     <name><![CDATA[Alex Melnykov]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Android AutoCompleteTextView With Suggestions From a Web Service]]></title>
-    <link href="http://makovkastar.github.io/blog/2014/07/28/android-autocompletetextview-with-suggestions-from-a-web-service/"/>
-    <updated>2014-07-28T09:52:04+03:00</updated>
-    <id>http://makovkastar.github.io/blog/2014/07/28/android-autocompletetextview-with-suggestions-from-a-web-service</id>
+    <link href="http://makovkastar.github.io/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service/"/>
+    <updated>2014-04-12T09:52:04+03:00</updated>
+    <id>http://makovkastar.github.io/blog/2014/04/12/android-autocompletetextview-with-suggestions-from-a-web-service</id>
     <content type="html"><![CDATA[<p>In the last update for my Android project <a href="https://play.google.com/store/apps/details?id=com.melnykov.booktracker">BookTracker</a> I have implemented an <a href="http://developer.android.com/reference/android/widget/AutoCompleteTextView.html">AutoCompleteTextView</a> with suggestions for a book title which are fetched from the <a href="https://developers.google.com/books/">Google Books</a>. There were a few requirements for such a view:</p>
 
 <ul>
