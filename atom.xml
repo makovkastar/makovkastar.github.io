@@ -4,7 +4,7 @@
   <title><![CDATA[Alex Melnykov]]></title>
   <link href="http://makovkastar.github.io/atom.xml" rel="self"/>
   <link href="http://makovkastar.github.io/"/>
-  <updated>2014-07-28T23:55:54+03:00</updated>
+  <updated>2014-07-29T00:04:51+03:00</updated>
   <id>http://makovkastar.github.io/</id>
   <author>
     <name><![CDATA[Alex Melnykov]]></name>
@@ -113,6 +113,7 @@
 <span class='line-number'>71</span>
 <span class='line-number'>72</span>
 <span class='line-number'>73</span>
+<span class='line-number'>74</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BookAutoCompleteAdapter</span> <span class="kd">extends</span> <span class="n">BaseAdapter</span> <span class="kd">implements</span> <span class="n">Filterable</span> <span class="o">{</span>
 </span><span class='line'>
 </span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MAX_RESULTS</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
@@ -157,11 +158,11 @@
 </span><span class='line'>            <span class="kd">protected</span> <span class="n">FilterResults</span> <span class="nf">performFiltering</span><span class="o">(</span><span class="n">CharSequence</span> <span class="n">constraint</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>                <span class="n">FilterResults</span> <span class="n">filterResults</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FilterResults</span><span class="o">();</span>
 </span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">constraint</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">resultList</span> <span class="o">=</span> <span class="n">findBooks</span><span class="o">(</span><span class="n">mContext</span><span class="o">,</span> <span class="n">constraint</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span><span class='line'>                    <span class="n">List</span><span class="o">&lt;</span><span class="n">Books</span><span class="o">&gt;</span> <span class="n">books</span> <span class="o">=</span> <span class="n">findBooks</span><span class="o">(</span><span class="n">mContext</span><span class="o">,</span> <span class="n">constraint</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
 </span><span class='line'>
 </span><span class='line'>                    <span class="c1">// Assign the data to the FilterResults</span>
-</span><span class='line'>                    <span class="n">filterResults</span><span class="o">.</span><span class="na">values</span> <span class="o">=</span> <span class="n">resultList</span><span class="o">;</span>
-</span><span class='line'>                    <span class="n">filterResults</span><span class="o">.</span><span class="na">count</span> <span class="o">=</span> <span class="n">resultList</span><span class="o">.</span><span class="na">size</span><span class="o">();</span>
+</span><span class='line'>                    <span class="n">filterResults</span><span class="o">.</span><span class="na">values</span> <span class="o">=</span> <span class="n">books</span><span class="o">;</span>
+</span><span class='line'>                    <span class="n">filterResults</span><span class="o">.</span><span class="na">count</span> <span class="o">=</span> <span class="n">books</span><span class="o">.</span><span class="na">size</span><span class="o">();</span>
 </span><span class='line'>                <span class="o">}</span>
 </span><span class='line'>                <span class="k">return</span> <span class="n">filterResults</span><span class="o">;</span>
 </span><span class='line'>            <span class="o">}</span>
@@ -169,6 +170,7 @@
 </span><span class='line'>            <span class="nd">@Override</span>
 </span><span class='line'>            <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">publishResults</span><span class="o">(</span><span class="n">CharSequence</span> <span class="n">constraint</span><span class="o">,</span> <span class="n">FilterResults</span> <span class="n">results</span><span class="o">)</span> <span class="o">{</span>
 </span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">results</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">results</span><span class="o">.</span><span class="na">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">resultList</span> <span class="o">=</span> <span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Books</span><span class="o">&gt;)</span> <span class="n">results</span><span class="o">.</span><span class="na">values</span><span class="o">;</span>
 </span><span class='line'>                    <span class="n">notifyDataSetChanged</span><span class="o">();</span>
 </span><span class='line'>                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
 </span><span class='line'>                    <span class="n">notifyDataSetInvalidated</span><span class="o">();</span>

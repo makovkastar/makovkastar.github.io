@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Webservice | Alex Melnykov]]></title>
   <link href="http://makovkastar.github.io/blog/categories/webservice/atom.xml" rel="self"/>
   <link href="http://makovkastar.github.io/"/>
-  <updated>2014-07-28T23:55:54+03:00</updated>
+  <updated>2014-07-29T00:04:51+03:00</updated>
   <id>http://makovkastar.github.io/</id>
   <author>
     <name><![CDATA[Alex Melnykov]]></name>
@@ -85,11 +85,11 @@ public Filter getFilter() {
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults filterResults = new FilterResults();
             if (constraint != null) {
-                resultList = findBooks(mContext, constraint.toString());
+                List&lt;Books&gt; books = findBooks(mContext, constraint.toString());
 
                 // Assign the data to the FilterResults
-                filterResults.values = resultList;
-                filterResults.count = resultList.size();
+                filterResults.values = books;
+                filterResults.count = books.size();
             }
             return filterResults;
         }
@@ -97,6 +97,7 @@ public Filter getFilter() {
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
             if (results != null &amp;&amp; results.count &gt; 0) {
+        resultList = (List&lt;Books&gt;) results.values;
                 notifyDataSetChanged();
             } else {
                 notifyDataSetInvalidated();
